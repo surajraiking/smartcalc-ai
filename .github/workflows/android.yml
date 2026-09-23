@@ -38,12 +38,8 @@ jobs:
           from pathlib import Path
           p = Path('app/index.tsx')
           s = p.read_text(encoding='utf-8')
-          replacements = {
-              "case'matrix':q=`2×2 determinant = ${fmt(x*z-y*c)}`;break;": "case'matrix':q=`2×2 determinant = ${fmt(x*z-y*n(c))}`;break;",
-              ")*c)} kcal/day`: ")*n(c)} kcal/day`",
-          }
-          for old, new in replacements.items():
-              s = s.replace(old, new)
+          s = s.replace("case'matrix':q=`2×2 determinant = ${fmt(x*z-y*c)}`;break;", "case'matrix':q=`2×2 determinant = ${fmt(x*z-y*n(c))}`;break;")
+          s = s.replace(')*c)} kcal/day', ')*n(c)} kcal/day')
           p.write_text(s, encoding='utf-8')
           PY
           if ! git diff --quiet -- app/index.tsx; then
