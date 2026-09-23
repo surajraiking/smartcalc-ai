@@ -11,10 +11,10 @@
     "doctor": "expo-doctor"
   },
   "dependencies": {
-    "expo": "~58.0.0",
-    "expo-router": "~58.0.6",
-    "react": "19.3.0",
-    "react-native": "0.88.0",
+    "expo": "~57.0.24",
+    "expo-router": "~57.0.22",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.26.0"
   },
