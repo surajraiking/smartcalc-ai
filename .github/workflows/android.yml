@@ -39,7 +39,8 @@ jobs:
           p = Path('app/index.tsx')
           s = p.read_text(encoding='utf-8')
           s = s.replace("case'matrix':q=`2×2 determinant = ${fmt(x*z-y*c)}`;break;", "case'matrix':q=`2×2 determinant = ${fmt(x*z-y*n(c))}`;break;")
-          s = s.replace(')*c)} kcal/day', ')*n(c)} kcal/day')
+          s = s.replace(')*c)} kcal/day', ')*n(c))} kcal/day')
+          s = s.replace(')*n(c)} kcal/day', ')*n(c))} kcal/day')
           p.write_text(s, encoding='utf-8')
           PY
           if ! git diff --quiet -- app/index.tsx; then
