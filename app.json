@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "SmartCalc AI",
+    "slug": "smartcalc-ai",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "smartcalcai",
+    "android": {
+      "package": "com.surajraiking.smartcalcai",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#111827"
+      }
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
