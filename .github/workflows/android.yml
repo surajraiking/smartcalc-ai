@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -27,6 +30,26 @@ jobs:
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund --legacy-peer-deps
+
+      - name: Repair known TypeScript issue
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('app/index.tsx')
+          s = p.read_text(encoding='utf-8')
+          old = "case'matrix':q=`2×2 determinant = ${fmt(x*z-y*c)}`;break;"
+          new = "case'matrix':q=`2×2 determinant = ${fmt(x*z-y*n(c))}`;break;"
+          if old in s:
+              p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
+          if ! git diff --quiet -- app/index.tsx; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add app/index.tsx
+            git commit -m "fix: resolve matrix calculator TypeScript type error"
+            git push
+          fi
 
       - name: TypeScript check
         run: npm run typecheck
