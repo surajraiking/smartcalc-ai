@@ -31,6 +31,16 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund --legacy-peer-deps
 
+      - name: Generate clean SmartCalc AI launcher icon
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends librsvg2-bin
+          test -f assets/icon.svg
+          rsvg-convert -w 1024 -h 1024 -o assets/icon.png assets/icon.svg
+          file assets/icon.png
+          identify assets/icon.png
+
       - name: Repair known TypeScript issues
         shell: bash
         run: |
