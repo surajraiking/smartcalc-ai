@@ -10,7 +10,7 @@
     "primaryColor": "#2D7CFF",
     "android": {
       "package": "com.surajraiking.smartcalcai",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#06122F"
