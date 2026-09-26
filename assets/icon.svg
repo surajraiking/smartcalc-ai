@@ -1,65 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#06122F"/>
-      <stop offset="0.55" stop-color="#111B55"/>
-      <stop offset="1" stop-color="#25104E"/>
-    </linearGradient>
-    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#62E9FF"/>
-      <stop offset="1" stop-color="#2D7CFF"/>
-    </linearGradient>
-    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#B77CFF"/>
-      <stop offset="1" stop-color="#6A3DFF"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFE59A"/>
-      <stop offset="0.5" stop-color="#FFB52E"/>
-      <stop offset="1" stop-color="#FF7A00"/>
-    </linearGradient>
-    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000000" flood-opacity="0.42"/>
-    </filter>
-  </defs>
-  <rect x="28" y="28" width="968" height="968" rx="218" fill="url(#bg)"/>
-  <circle cx="770" cy="245" r="155" fill="#5B43FF" opacity="0.16"/>
-  <circle cx="240" cy="800" r="190" fill="#20D8FF" opacity="0.10"/>
-  <path d="M176 675 C245 744 332 776 431 771 C542 765 623 708 697 620" fill="none" stroke="#63E8FF" stroke-width="10" stroke-linecap="round" opacity="0.35"/>
-
-  <g filter="url(#shadow)">
-    <rect x="186" y="154" width="652" height="676" rx="118" fill="#F7FBFF"/>
-    <rect x="224" y="192" width="576" height="190" rx="62" fill="url(#cyan)"/>
-    <rect x="262" y="232" width="500" height="110" rx="42" fill="#071634" opacity="0.92"/>
-    <text x="512" y="306" text-anchor="middle" font-family="Arial, sans-serif" font-size="66" font-weight="800" fill="#FFFFFF">SC</text>
-
-    <g fill="#101D48">
-      <rect x="250" y="428" width="112" height="92" rx="28"/>
-      <rect x="390" y="428" width="112" height="92" rx="28"/>
-      <rect x="530" y="428" width="112" height="92" rx="28"/>
-      <rect x="670" y="428" width="90" height="92" rx="28"/>
-      <rect x="250" y="548" width="112" height="92" rx="28"/>
-      <rect x="390" y="548" width="112" height="92" rx="28"/>
-      <rect x="530" y="548" width="112" height="92" rx="28"/>
-      <rect x="670" y="548" width="90" height="92" rx="28"/>
-      <rect x="250" y="668" width="252" height="92" rx="28"/>
-      <rect x="530" y="668" width="230" height="92" rx="28"/>
-    </g>
-    <g fill="url(#cyan)">
-      <circle cx="306" cy="474" r="20"/><circle cx="446" cy="474" r="20"/><circle cx="586" cy="474" r="20"/>
-    </g>
-    <g fill="url(#violet)">
-      <circle cx="715" cy="474" r="20"/><circle cx="306" cy="594" r="20"/><circle cx="446" cy="594" r="20"/><circle cx="586" cy="594" r="20"/>
-    </g>
-    <path d="M688 594 h54 M715 567 v54" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
-    <path d="M286 714 h180" stroke="#62E9FF" stroke-width="18" stroke-linecap="round"/>
-    <path d="M565 714 h160" stroke="url(#gold)" stroke-width="18" stroke-linecap="round"/>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#030816"/><stop offset=".45" stop-color="#10295A"/><stop offset="1" stop-color="#32105B"/></linearGradient>
+<linearGradient id="face" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF"/><stop offset=".55" stop-color="#DDEBFF"/><stop offset="1" stop-color="#9EBCEB"/></linearGradient>
+<linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#72F4FF"/><stop offset=".5" stop-color="#2E8CFF"/><stop offset="1" stop-color="#4A3CFF"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF0A8"/><stop offset=".45" stop-color="#FFC52E"/><stop offset="1" stop-color="#FF6B00"/></linearGradient>
+<filter id="deep" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#000" flood-opacity=".55"/></filter>
+<filter id="glow"><feGaussianBlur stdDeviation="13"/></filter>
+</defs>
+<rect x="24" y="24" width="976" height="976" rx="230" fill="url(#bg)"/>
+<circle cx="790" cy="220" r="170" fill="#6B5CFF" opacity=".18" filter="url(#glow)"/>
+<circle cx="200" cy="830" r="190" fill="#22E6FF" opacity=".10" filter="url(#glow)"/>
+<g opacity=".22" fill="#FFFFFF"><circle cx="150" cy="180" r="5"/><circle cx="875" cy="700" r="6"/><circle cx="770" cy="870" r="4"/><circle cx="320" cy="120" r="4"/></g>
+<g filter="url(#deep)">
+  <rect x="174" y="174" width="676" height="650" rx="128" fill="#07132C" stroke="#2A5B98" stroke-width="10"/>
+  <rect x="174" y="150" width="676" height="650" rx="128" fill="url(#face)" stroke="#FFFFFF" stroke-width="5"/>
+  <path d="M174 268 Q174 150 292 150 H732 Q850 150 850 268 V315 H174Z" fill="url(#blue)"/>
+  <rect x="235" y="210" width="554" height="120" rx="45" fill="#050F25" opacity=".92" stroke="#73EEFF" stroke-width="4"/>
+  <text x="512" y="291" text-anchor="middle" font-family="Arial,sans-serif" font-size="66" font-weight="900" fill="#FFFFFF">SMARTCALC</text>
+  <g fill="#091A3B">
+    <rect x="232" y="374" width="124" height="90" rx="27"/><rect x="374" y="374" width="124" height="90" rx="27"/><rect x="516" y="374" width="124" height="90" rx="27"/><rect x="658" y="374" width="124" height="90" rx="27"/>
+    <rect x="232" y="488" width="124" height="90" rx="27"/><rect x="374" y="488" width="124" height="90" rx="27"/><rect x="516" y="488" width="124" height="90" rx="27"/><rect x="658" y="488" width="124" height="90" rx="27"/>
+    <rect x="232" y="602" width="266" height="90" rx="27"/><rect x="516" y="602" width="266" height="90" rx="27"/>
   </g>
-
-  <g transform="translate(705 92)">
-    <circle cx="84" cy="84" r="72" fill="url(#gold)"/>
-    <path d="M54 89 L76 111 L116 60" fill="none" stroke="#101B42" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
-  <text x="512" y="915" text-anchor="middle" font-family="Arial, sans-serif" font-size="46" font-weight="800" fill="#FFFFFF" letter-spacing="4">SMARTCALC AI</text>
-  <text x="512" y="963" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#8FEFFF" letter-spacing="5">BY SURAJ RAI</text>
+  <g fill="url(#blue)"><circle cx="294" cy="419" r="20"/><circle cx="436" cy="419" r="20"/><circle cx="578" cy="419" r="20"/><circle cx="720" cy="419" r="20"/><circle cx="294" cy="533" r="20"/><circle cx="436" cy="533" r="20"/><circle cx="578" cy="533" r="20"/></g>
+  <path d="M692 533h56M720 505v56" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round"/>
+  <path d="M270 647h190" stroke="#63EFFF" stroke-width="18" stroke-linecap="round"/>
+  <path d="M554 647h190" stroke="url(#gold)" stroke-width="18" stroke-linecap="round"/>
+</g>
+<g transform="translate(700 84)" filter="url(#deep)">
+ <circle cx="82" cy="82" r="76" fill="#7D4B00" opacity=".65"/>
+ <circle cx="82" cy="72" r="72" fill="url(#gold)" stroke="#FFF2A6" stroke-width="5"/>
+ <path d="M48 73 L72 98 L119 48" fill="none" stroke="#101B42" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="512" y="872" text-anchor="middle" font-family="Arial,sans-serif" font-size="43" font-weight="900" fill="#FFFFFF" letter-spacing="5">SMARTCALC AI</text>
+<text x="512" y="925" text-anchor="middle" font-family="Arial,sans-serif" font-size="30" font-weight="800" fill="#79EEFF" letter-spacing="6">BY SURAJ RAI</text>
+<text x="512" y="965" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#A8BCE0" letter-spacing="3">CALCULATE • CONVERT • CHAT</text>
 </svg>
