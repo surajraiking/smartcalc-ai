@@ -1,1 +1,1 @@
-export { default } from './smart';
+export { default } from './universal';
