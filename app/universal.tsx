@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import SalesPanel from './sales';
 
-type Mode = 'smart'|'convert'|'motor'|'tools';
+type Mode = 'smart'|'convert'|'motor'|'sales'|'tools';
 type Result = { title:string; value:string; formula?:string; detail?:string };
 
 const UNIT: Record<string, {base:string; factor:number}> = {
@@ -94,8 +95,8 @@ export default function UniversalHome(){
  const router=useRouter(); const [mode,setMode]=useState<Mode>('smart');
  return <View style={S.root}><ScrollView contentContainerStyle={S.page}>
   <View style={S.hero}><Text style={S.badge}>SMARTCALC AI · UNIVERSAL ENGINE</Text><Text style={S.title}>Calculate <Text style={{color:'#63E5FF'}}>Anything.</Text></Text><Text style={S.sub}>Calculator + Converter + Finance + Engineering + Cooler Motor Manufacturing</Text></View>
-  <View style={S.tabs}>{[['smart','🧠 Smart'],['convert','🔄 Convert'],['motor','⚙️ Motor'],['tools','💱 Currency']].map(([id,label])=><Pressable key={id} onPress={()=>setMode(id as Mode)} style={[S.tab,mode===id&&S.tabOn]}><Text style={[S.tabText,mode===id&&S.tabTextOn]}>{label}</Text></Pressable>)}</View>
-  {mode==='smart'&&<SmartPanel/>}{mode==='convert'&&<ConverterPanel/>}{mode==='motor'&&<MotorPanel/>}{mode==='tools'&&<CurrencyPanel/>}
+  <View style={S.tabs}>{[['smart','🧠 Smart'],['convert','🔄 Convert'],['motor','⚙️ Motor'],['sales','💰 Sales'],['tools','💱 Currency']].map(([id,label])=><Pressable key={id} onPress={()=>setMode(id as Mode)} style={[S.tab,mode===id&&S.tabOn]}><Text style={[S.tabText,mode===id&&S.tabTextOn]}>{label}</Text></Pressable>)}</View>
+  {mode==='smart'&&<SmartPanel/>}{mode==='convert'&&<ConverterPanel/>}{mode==='motor'&&<MotorPanel/>}{mode==='sales'&&<SalesPanel/>}{mode==='tools'&&<CurrencyPanel/>}
   <View style={S.preserve}><Text style={S.preserveTitle}>✓ Existing SmartCalc preserved</Text><Text style={S.muted}>All existing calculator tools, Chess, AI Chat, history and integrations remain available.</Text><Pressable onPress={()=>router.push('/smart')} style={S.secondary}><Text style={S.secondaryText}>OPEN FULL EXISTING SMARTCALC →</Text></Pressable></View>
  </ScrollView></View>
 }
