@@ -45,3 +45,79 @@ a {
 ::-webkit-scrollbar-thumb:hover {
   background: #7DA6DE;
 }
+
+@keyframes scanAnim {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 96%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+/* 3D Isometric Card Pop-Out & Lift Hover Effects */
+.iso-card-lift {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              box-shadow 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              border-color 0.25s ease !important;
+  will-change: transform, box-shadow;
+}
+
+.is-3d .iso-card-lift:hover {
+  transform: translateZ(80px) translateY(-10px) scale(1.02) !important;
+  box-shadow: 0 36px 68px rgba(0, 0, 0, 0.9), inset 0 2px 4px rgba(255, 255, 255, 0.25) !important;
+  border-color: #38BDF8 !important;
+}
+
+.not-3d .iso-card-lift:hover {
+  transform: translateY(-8px) scale(1.018) !important;
+  box-shadow: 0 24px 44px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
+  border-color: #38BDF8 !important;
+}
+
+/* Sub-card and interactive widget hover pop-out */
+.iso-subcard-lift {
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              box-shadow 0.25s ease, 
+              border-color 0.25s ease !important;
+}
+
+.iso-subcard-lift:hover {
+  transform: translateY(-4px) scale(1.025) !important;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.7) !important;
+  border-color: #60A5FA !important;
+}
+
+/* Chunky 3D button tactile hover & active bounce */
+.iso-btn-3d {
+  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              box-shadow 0.15s ease, 
+              filter 0.15s ease !important;
+}
+
+.iso-btn-3d:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  filter: brightness(1.12);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+.iso-btn-3d:active {
+  transform: translateY(2px) scale(0.98) !important;
+}
+
+/* Flowchart nodes hover elevation */
+.iso-node-lift {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              box-shadow 0.2s ease, 
+              filter 0.2s ease !important;
+  cursor: pointer;
+}
+
+.iso-node-lift:hover {
+  transform: translateY(-4px) scale(1.05) !important;
+  filter: brightness(1.18);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6) !important;
+}
