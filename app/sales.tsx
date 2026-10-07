@@ -48,7 +48,7 @@ export default function SalesPanel(){
   const freeTotal=q+n(free);
   const targetMarginPrice=n(targetMargin)<100&&n(targetMargin)>=0?cp/(1-n(targetMargin)/100):0;
   return {q,cp,sp,mr,gross,discount,tradeDiscount,additionalDiscount,taxable,tax,cgst,sgst,igst,charges,commissionAmt,marketplaceAmt,invoice,returnAmt,netSales,netRevenueExTax,totalCost,profit,margin,markup,unitNet,breakEven,targetAchieved,commissionSalesman,pending,discountFromMrp,marginPriceFor20,priceForMargin,freeTotal,targetMarginPrice};
- },[qty,cost,price,mrp,disc,trade,addDisc,gst,inclusive,inter,freight,packing,other,commission,marketFee,returns,advance,received,fixed,target,salesman,free]);
+ },[qty,cost,price,mrp,disc,trade,addDisc,gst,inclusive,inter,freight,packing,other,commission,marketFee,returns,advance,received,fixed,target,salesman,free,targetMargin]);
 
  const Field=({label,value,set}:any)=><View style={S.fw}><Text style={S.label}>{label}</Text><TextInput value={value} onChangeText={set} keyboardType="decimal-pad" style={S.field}/></View>;
  const M=({label,value,accent=false}:any)=><View style={[S.metric,accent&&S.accent]}><Text style={S.ml}>{label}</Text><Text style={S.mv}>{value}</Text></View>;
