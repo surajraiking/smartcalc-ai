@@ -30,9 +30,10 @@ export default function SalesPanel(){
   const invoice=inclusive?taxableBeforeCharges+charges:taxable+tax+charges;
   const returnAmt=pct(invoice,n(returns));
   const netSales=Math.max(0,invoice-returnAmt);
+  const netRevenueExTax=Math.max(0,taxableBeforeCharges-(gr>0?returnAmt/(1+gr/100):returnAmt));
   const totalCost=q*cp+charges+commissionAmt+marketplaceAmt;
-  const profit=netSales-totalCost;
-  const margin=netSales?profit/netSales*100:0;
+  const profit=netRevenueExTax-totalCost;
+  const margin=netRevenueExTax?profit/netRevenueExTax*100:0;
   const markup=totalCost?profit/totalCost*100:0;
   const unitNet=q?netSales/q:0;
   const contribution=(sp*(1-d/100)*(1-td/100)*(1-ad/100))-cp;
@@ -45,7 +46,7 @@ export default function SalesPanel(){
   const priceForMargin=(m:number)=>m<100?cp/(1-m/100):0;
   const freeTotal=q+n(free);
   const targetMarginPrice=n(targetMargin)<100&&n(targetMargin)>=0?cp/(1-n(targetMargin)/100):0;
-  return {q,cp,sp,mr,gross,discount,tradeDiscount,additionalDiscount,taxable,tax,cgst,sgst,igst,charges,commissionAmt,marketplaceAmt,invoice,returnAmt,netSales,totalCost,profit,margin,markup,unitNet,breakEven,targetAchieved,commissionSalesman,pending,discountFromMrp,marginPriceFor20,priceForMargin,freeTotal,targetMarginPrice};
+  return {q,cp,sp,mr,gross,discount,tradeDiscount,additionalDiscount,taxable,tax,cgst,sgst,igst,charges,commissionAmt,marketplaceAmt,invoice,returnAmt,netSales,netRevenueExTax,totalCost,profit,margin,markup,unitNet,breakEven,targetAchieved,commissionSalesman,pending,discountFromMrp,marginPriceFor20,priceForMargin,freeTotal,targetMarginPrice};
  },[qty,cost,price,mrp,disc,trade,addDisc,gst,inclusive,inter,freight,packing,other,commission,marketFee,returns,advance,received,fixed,target,salesman,free]);
 
  const Field=({label,value,set}:any)=><View style={S.fw}><Text style={S.label}>{label}</Text><TextInput value={value} onChangeText={set} keyboardType="decimal-pad" style={S.field}/></View>;
@@ -53,7 +54,8 @@ export default function SalesPanel(){
 
  return <ScrollView nestedScrollEnabled>
   <Text style={S.section}>💰 Sales & Business Calculator</Text>
-  <Text style={S.muted}>Har field me value type karein — results turant live calculate honge. Margin, markup, profit aur invoice breakup sab ek saath.</Text>
+  <Text style={S.muted}>Har field me value type karein — results turant live calculate honge. Margin/markup profit GST ko revenue se alag karke calculate kiye jaate hain.</Text>
+  <View style={[S.result,{marginTop:10}]}><Text style={S.kicker}>⚡ LIVE RESULT • AUTO-UPDATES</Text><Text style={S.big}>₹{f(c.netSales)}</Text><Text style={S.caption}>INVOICE / NET REALISATION (GST INCLUDED AS CONFIGURED)</Text><View style={S.metricGrid}><M label="Profit (ex-GST revenue)" value={'₹'+f(c.profit)} accent/><M label="Profit Margin" value={f(c.margin)+'%'} accent/><M label="Taxable Revenue" value={'₹'+f(c.netRevenueExTax)}/><M label="Pending Balance" value={'₹'+f(c.pending)}/></View></View>
   <Text style={S.head}>1. SALE / PRICE</Text>
   <View style={S.grid}>
    <Field label="Quantity" value={qty} set={setQty}/><Field label="Cost / Unit ₹" value={cost} set={setCost}/>
