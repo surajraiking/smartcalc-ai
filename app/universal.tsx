@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Alert, BackHandler, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import SalesPanel from './sales';
 
@@ -18,6 +18,12 @@ const UNIT: Record<string, {base:string; factor:number}> = {
   j:{base:'j',factor:1}, kj:{base:'j',factor:1000}, wh:{base:'j',factor:3600}, kwh:{base:'j',factor:3600000}, kcal:{base:'j',factor:4184}
 };
 const CURRENCIES=['INR','USD','EUR','GBP','AED','SAR','JPY','CNY','CAD','AUD','CHF','SGD','HKD','NZD','ZAR','BRL','MXN','KRW','THB','MYR','IDR','TRY','NOK','SEK','DKK','RUB'];
+const UNIT_GROUPS:Record<string,string[]>={Mass:['mg','g','kg','tonne','quintal','oz','lb'],Length:['mm','cm','m','km','inch','ft','yard','mile'],Volume:['ml','l','gallon'],Temperature:['c','f','k'],Time:['sec','min','hour','day'],Speed:['kmh','mph','mps'],Pressure:['pa','kpa','bar','psi','atm'],Power:['w','kw','mw','hp'],Energy:['j','kj','wh','kwh','kcal']};
+function Dropdown({label,value,options,onChange}: {label:string;value:string;options:string[];onChange:(v:string)=>void}){
+ const [open,setOpen]=useState(false);
+ return <View style={{flex:1,minWidth:90}}><Text style={S.label}>{label}</Text><Pressable onPress={()=>setOpen(true)} style={[S.field,{justifyContent:'center',flexDirection:'row',alignItems:'center',gap:6}]}><Text style={{color:'#142449',fontSize:13,fontWeight:'800',flex:1}}>{value}</Text><Text style={{color:'#287BFF'}}>▾</Text></Pressable><Modal visible={open} transparent animationType="fade" onRequestClose={()=>setOpen(false)}><View style={{flex:1,backgroundColor:'#06122FCC',justifyContent:'center',padding:24}}><View style={{maxHeight:'75%',backgroundColor:'#FFFFFF',borderRadius:24,padding:16,borderWidth:2,borderColor:'#71E8FF'}}><Text style={{fontSize:18,fontWeight:'900',color:'#142449',marginBottom:12}}>{label} चुनें</Text><ScrollView>{options.map(o=><Pressable key={o} onPress={()=>{onChange(o);setOpen(false)}} style={{padding:14,marginBottom:6,borderRadius:13,backgroundColor:o===value?'#DDF7FF':'#F0F5FF',borderWidth:1,borderColor:o===value?'#36B9ED':'#DFE8F8'}}><Text style={{fontSize:14,fontWeight:'800',color:'#142449'}}>{o}</Text></Pressable>)}</ScrollView><Pressable onPress={()=>setOpen(false)} style={S.primary}><Text style={S.primaryText}>CLOSE</Text></Pressable></View></View></Modal></View>
+}
+
 const n=(x:string)=>{const v=Number(String(x).replace(/,/g,''));return Number.isFinite(v)?v:0};
 const f=(x:number)=>Number.isFinite(x)?x.toLocaleString('en-IN',{maximumFractionDigits:10}):'Error';
 const clean=(s:string)=>s.toLowerCase().replace(/,/g,'').replace(/×/g,'*').replace(/÷/g,'/');
@@ -66,8 +72,8 @@ function MotorPanel(){
 function SmartPanel(){
  const [q,setQ]=useState(''); const result=useMemo(()=>natural(q),[q]);
  return <View><Text style={S.section}>🧠 Conversational Calculator</Text><Text style={S.muted}>Type naturally. Result appears instantly while you type.</Text>
- <TextInput value={q} onChangeText={setQ} placeholder="Try: 5 kg to g • ₹2500 at 18% GST • 500 motors 3.3 kg • 500 motors 2% rejection" placeholderTextColor="#7183A2" style={S.bigInput}/>
  {result&&<View style={S.answer}><Text style={S.answerKicker}>LIVE RESULT</Text><Text style={S.answerValue}>{result.value}</Text><Text style={S.answerTitle}>{result.title}</Text>{result.formula&&<Text style={S.formula}>{result.formula}</Text>}{result.detail&&<Text style={S.detail}>{result.detail}</Text>}</View>}
+ <TextInput value={q} onChangeText={setQ} placeholder="Try: 5 kg to g • ₹2500 at 18% GST • 500 motors 3.3 kg • 500 motors 2% rejection" placeholderTextColor="#7183A2" style={S.bigInput}/>
  <Text style={S.section}>⚡ Quick examples</Text><View style={S.quickGrid}>{['5 kg to g','2500 at 18% GST','500 motors 3.3 kg','500 motors 2% rejection','1000 / 4','(1250+750)*2'].map(x=><Pressable key={x} onPress={()=>setQ(x)} style={S.quick}><Text style={S.quickText}>{x}</Text></Pressable>)}</View>
  </View>
 }
@@ -75,7 +81,7 @@ function ConverterPanel(){
  const [v,setV]=useState('5'),[from,setFrom]=useState('kg'),[to,setTo]=useState('g');
  const res=useMemo(()=>convert(v,from,to),[v,from,to]);
  return <View><Text style={S.section}>🔄 Universal Converter</Text><Text style={S.muted}>Mass, length, volume, temperature, time, speed, pressure, power, energy and more.</Text>
- <View style={S.row}><TextInput value={v} onChangeText={setV} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><TextInput value={from} onChangeText={setFrom} autoCapitalize="none" style={[S.field,{flex:1}]}/><TextInput value={to} onChangeText={setTo} autoCapitalize="none" style={[S.field,{flex:1}]}/></View>
+ <View style={S.row}><TextInput value={v} onChangeText={setV} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><Dropdown label="FROM UNIT" value={from} options={Object.keys(UNIT)} onChange={setFrom}/><Dropdown label="TO UNIT" value={to} options={Object.keys(UNIT)} onChange={setTo}/></View>
  {res&&<View style={S.answer}><Text style={S.answerKicker}>CONVERTED</Text><Text style={S.answerValue}>{res.value}</Text><Text style={S.formula}>{res.formula}</Text></View>}
  <Text style={S.examples}>Try: kg, g, mg, tonne • mm, cm, m, km, inch, ft, mile • mL, L, gallon • C, F, K • s, min, hour, day • kmh, mph, mps • Pa, bar, PSI • W, kW, hp • J, kWh, kcal</Text>
  </View>
@@ -83,9 +89,10 @@ function ConverterPanel(){
 function CurrencyPanel(){
  const [amount,setAmount]=useState('1'),[from,setFrom]=useState('USD'),[to,setTo]=useState('INR'),[rate,setRate]=useState(83);
  const [busy,setBusy]=useState(false);
- const load=async()=>{setBusy(true);try{const r=await fetch('https://api.frankfurter.app/latest?from='+from+'&to='+to);const j=await r.json();const rr=Number(j?.rates?.[to]);if(Number.isFinite(rr))setRate(rr)}catch{}finally{setBusy(false)}};
+ const load=async()=>{if(from===to){setRate(1);return}setBusy(true);try{const r=await fetch('https://api.frankfurter.app/latest?from='+from+'&to='+to);if(!r.ok)throw new Error('Rate unavailable');const j=await r.json();const rr=Number(j?.rates?.[to]);if(Number.isFinite(rr))setRate(rr)}catch{}finally{setBusy(false)}};
+ useEffect(()=>{load()},[from,to]);
  return <View><Text style={S.section}>💱 World Currency</Text><Text style={S.muted}>Live-rate capable converter with a safe fallback rate. {busy?'Updating…':'Tap Update Rate for the latest available rate.'}</Text>
- <View style={S.row}><TextInput value={amount} onChangeText={setAmount} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><TextInput value={from} onChangeText={x=>setFrom(x.toUpperCase())} style={[S.field,{flex:1}]}/><TextInput value={to} onChangeText={x=>setTo(x.toUpperCase())} style={[S.field,{flex:1}]}/></View>
+ <View style={S.row}><TextInput value={amount} onChangeText={setAmount} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><Dropdown label="FROM" value={from} options={CURRENCIES} onChange={setFrom}/><Dropdown label="TO" value={to} options={CURRENCIES} onChange={setTo}/></View>
  <Pressable onPress={load} style={S.primary}><Text style={S.primaryText}>↻ UPDATE LIVE RATE</Text></Pressable>
  <View style={S.answer}><Text style={S.answerKicker}>CURRENCY RESULT</Text><Text style={S.answerValue}>{to} {f(n(amount)*rate)}</Text><Text style={S.formula}>1 {from} = {f(rate)} {to}</Text></View>
  <Text style={S.examples}>Supported quick list: {CURRENCIES.join(' • ')}</Text>
@@ -93,6 +100,7 @@ function CurrencyPanel(){
 }
 export default function UniversalHome(){
  const router=useRouter(); const [mode,setMode]=useState<Mode>('smart');
+ useEffect(()=>{const sub=BackHandler.addEventListener('hardwareBackPress',()=>{Alert.alert('Exit SmartCalc AI?','Are you sure you want to exit the app?', [{text:'Cancel',style:'cancel'},{text:'Exit',style:'destructive',onPress:()=>BackHandler.exitApp()}]);return true});return ()=>sub.remove()},[]);
  return <View style={S.root}><ScrollView contentContainerStyle={S.page}>
   <View style={S.hero}><Text style={S.badge}>SMARTCALC AI · UNIVERSAL ENGINE</Text><Text style={S.title}>Calculate <Text style={{color:'#63E5FF'}}>Anything.</Text></Text><Text style={S.sub}>Calculator + Converter + Finance + Engineering + Cooler Motor Manufacturing</Text></View>
   <View style={S.tabs}>{[['smart','🧠 Smart'],['convert','🔄 Convert'],['motor','⚙️ Motor'],['sales','💰 Sales'],['tools','💱 Currency']].map(([id,label])=><Pressable key={id} onPress={()=>setMode(id as Mode)} style={[S.tab,mode===id&&S.tabOn]}><Text style={[S.tabText,mode===id&&S.tabTextOn]}>{label}</Text></Pressable>)}</View>
