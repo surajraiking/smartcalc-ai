@@ -30,7 +30,8 @@ export default function SalesPanel(){
   const invoice=inclusive?taxableBeforeCharges+charges:taxable+tax+charges;
   const returnAmt=pct(invoice,n(returns));
   const netSales=Math.max(0,invoice-returnAmt);
-  const netRevenueExTax=Math.max(0,taxableBeforeCharges-(gr>0?returnAmt/(1+gr/100):returnAmt));
+  const revenueBeforeReturns=inclusive&&gr>0?taxableBeforeCharges/(1+gr/100):taxableBeforeCharges;
+  const netRevenueExTax=Math.max(0,revenueBeforeReturns*(1-n(returns)/100));
   const totalCost=q*cp+charges+commissionAmt+marketplaceAmt;
   const profit=netRevenueExTax-totalCost;
   const margin=netRevenueExTax?profit/netRevenueExTax*100:0;
