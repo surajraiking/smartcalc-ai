@@ -56,7 +56,9 @@ function natural(q:string):Result|null{
   return null;
 }
 function convert(value:string,from:string,to:string):Result|null{
-  const a=n(value); const x=UNIT[from.toLowerCase()],y=UNIT[to.toLowerCase()]; if(!x||!y||x.base!==y.base)return null;
+  const a=n(value),u=from.toLowerCase(),v=to.toLowerCase();
+  if(['c','f','k'].includes(u)&&['c','f','k'].includes(v)){const c=u==='c'?a:u==='f'?(a-32)*5/9:a-273.15;const out=v==='c'?c:v==='f'?c*9/5+32:c+273.15;return{title:'Temperature conversion',value:f(out)+' '+to,formula:u.toUpperCase()+' → '+v.toUpperCase()+' using exact temperature formulas'}}
+  const x=UNIT[u],y=UNIT[v]; if(!x||!y||x.base!==y.base)return null;
   return{title:'Converter result',value:f(a*x.factor/y.factor)+' '+to,formula:a+' '+from+' × '+x.factor+'/'+y.factor};
 }
 function MotorPanel(){
@@ -87,14 +89,14 @@ function ConverterPanel(){
  </View>
 }
 function CurrencyPanel(){
- const [amount,setAmount]=useState('1'),[from,setFrom]=useState('USD'),[to,setTo]=useState('INR'),[rate,setRate]=useState(83);
+ const [amount,setAmount]=useState('1'),[from,setFrom]=useState('USD'),[to,setTo]=useState('INR'),[rate,setRate]=useState<number|null>(null);
  const [busy,setBusy]=useState(false);
- const load=async()=>{if(from===to){setRate(1);return}setBusy(true);try{const r=await fetch('https://api.frankfurter.app/latest?from='+from+'&to='+to);if(!r.ok)throw new Error('Rate unavailable');const j=await r.json();const rr=Number(j?.rates?.[to]);if(Number.isFinite(rr))setRate(rr)}catch{}finally{setBusy(false)}};
+ const load=async()=>{if(from===to){setRate(1);return}setBusy(true);setRate(null);try{const r=await fetch('https://api.frankfurter.app/latest?from='+from+'&to='+to);if(!r.ok)throw new Error('Rate unavailable');const j=await r.json();const rr=Number(j?.rates?.[to]);if(Number.isFinite(rr))setRate(rr)}catch{setRate(null)}finally{setBusy(false)}};
  useEffect(()=>{load()},[from,to]);
  return <View><Text style={S.section}>💱 World Currency</Text><Text style={S.muted}>Live-rate capable converter with a safe fallback rate. {busy?'Updating…':'Tap Update Rate for the latest available rate.'}</Text>
  <View style={S.row}><TextInput value={amount} onChangeText={setAmount} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><Dropdown label="FROM" value={from} options={CURRENCIES} onChange={setFrom}/><Dropdown label="TO" value={to} options={CURRENCIES} onChange={setTo}/></View>
  <Pressable onPress={load} style={S.primary}><Text style={S.primaryText}>↻ UPDATE LIVE RATE</Text></Pressable>
- <View style={S.answer}><Text style={S.answerKicker}>CURRENCY RESULT</Text><Text style={S.answerValue}>{to} {f(n(amount)*rate)}</Text><Text style={S.formula}>1 {from} = {f(rate)} {to}</Text></View>
+ <View style={S.answer}><Text style={S.answerKicker}>CURRENCY RESULT</Text><Text style={S.answerValue}>{rate===null?(busy?'Fetching rate…':'Live rate unavailable — retry'):(to+' '+f(n(amount)*rate))}</Text>{rate!==null&&<Text style={S.formula}>1 {from} = {f(rate)} {to} • rate date: latest provider response</Text>}</View>
  <Text style={S.examples}>Supported quick list: {CURRENCIES.join(' • ')}</Text>
  </View>
 }
