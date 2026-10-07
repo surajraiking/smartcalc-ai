@@ -80,10 +80,10 @@ function SmartPanel(){
  </View>
 }
 function ConverterPanel(){
- const [v,setV]=useState('5'),[from,setFrom]=useState('kg'),[to,setTo]=useState('g');
+ const [v,setV]=useState('5'),[group,setGroup]=useState('Mass'),[from,setFrom]=useState('kg'),[to,setTo]=useState('g');
  const res=useMemo(()=>convert(v,from,to),[v,from,to]);
  return <View><Text style={S.section}>🔄 Universal Converter</Text><Text style={S.muted}>Mass, length, volume, temperature, time, speed, pressure, power, energy and more.</Text>
- <View style={S.row}><TextInput value={v} onChangeText={setV} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><Dropdown label="FROM UNIT" value={from} options={Object.keys(UNIT)} onChange={setFrom}/><Dropdown label="TO UNIT" value={to} options={Object.keys(UNIT)} onChange={setTo}/></View>
+ <View style={S.row}><TextInput value={v} onChangeText={setV} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><Dropdown label="CATEGORY" value={group} options={Object.keys(UNIT_GROUPS)} onChange={g=>{setGroup(g);setFrom(UNIT_GROUPS[g][0]);setTo(UNIT_GROUPS[g][1]||UNIT_GROUPS[g][0])}}/></View><View style={S.row}><Dropdown label="FROM UNIT" value={from} options={UNIT_GROUPS[group]} onChange={setFrom}/><Dropdown label="TO UNIT" value={to} options={UNIT_GROUPS[group]} onChange={setTo}/></View>
  {res&&<View style={S.answer}><Text style={S.answerKicker}>CONVERTED</Text><Text style={S.answerValue}>{res.value}</Text><Text style={S.formula}>{res.formula}</Text></View>}
  <Text style={S.examples}>Try: kg, g, mg, tonne • mm, cm, m, km, inch, ft, mile • mL, L, gallon • C, F, K • s, min, hour, day • kmh, mph, mps • Pa, bar, PSI • W, kW, hp • J, kWh, kcal</Text>
  </View>
@@ -104,7 +104,7 @@ export default function UniversalHome(){
  const router=useRouter(); const [mode,setMode]=useState<Mode>('smart');
  useEffect(()=>{const sub=BackHandler.addEventListener('hardwareBackPress',()=>{Alert.alert('Exit SmartCalc AI?','Are you sure you want to exit the app?', [{text:'Cancel',style:'cancel'},{text:'Exit',style:'destructive',onPress:()=>BackHandler.exitApp()}]);return true});return ()=>sub.remove()},[]);
  return <View style={S.root}><ScrollView contentContainerStyle={S.page}>
-  <View style={S.hero}><Text style={S.badge}>SMARTCALC AI · UNIVERSAL ENGINE</Text><Text style={S.title}>Calculate <Text style={{color:'#63E5FF'}}>Anything.</Text></Text><Text style={S.sub}>Calculator + Converter + Finance + Engineering + Cooler Motor Manufacturing</Text></View>
+  <View style={S.hero}><View style={{alignSelf:'flex-start',paddingHorizontal:13,paddingVertical:9,borderRadius:16,backgroundColor:'#09183D',borderWidth:2,borderColor:'#FFE38A',shadowColor:'#03091B',shadowOpacity:.5,shadowRadius:9,elevation:8,transform:[{rotate:'-4deg'}]}}><Text style={{fontSize:22,fontWeight:'900',color:'#FFFFFF',textShadowColor:'#21DFFF',textShadowRadius:7}}>∑ <Text style={{color:'#FFE38A'}}>AI</Text> ✦</Text></View><Text style={[S.badge,{marginTop:10}]}>SMARTCALC AI · UNIVERSAL ENGINE</Text><Text style={S.title}>Calculate <Text style={{color:'#63E5FF'}}>Anything.</Text></Text><Text style={S.sub}>Calculator + Converter + Finance + Engineering + Cooler Motor Manufacturing</Text></View>
   <View style={S.tabs}>{[['smart','🧠 Smart'],['convert','🔄 Convert'],['motor','⚙️ Motor'],['sales','💰 Sales'],['tools','💱 Currency']].map(([id,label])=><Pressable key={id} onPress={()=>setMode(id as Mode)} style={[S.tab,mode===id&&S.tabOn]}><Text style={[S.tabText,mode===id&&S.tabTextOn]}>{label}</Text></Pressable>)}</View>
   {mode==='smart'&&<SmartPanel/>}{mode==='convert'&&<ConverterPanel/>}{mode==='motor'&&<MotorPanel/>}{mode==='sales'&&<SalesPanel/>}{mode==='tools'&&<CurrencyPanel/>}
   <View style={S.preserve}><Text style={S.preserveTitle}>✓ Existing SmartCalc preserved</Text><Text style={S.muted}>All existing calculator tools, Chess, AI Chat, history and integrations remain available.</Text><Pressable onPress={()=>router.push('/smart')} style={S.secondary}><Text style={S.secondaryText}>OPEN FULL EXISTING SMARTCALC →</Text></Pressable></View>
