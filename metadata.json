@@ -1,0 +1,5 @@
+{
+  "name": "SmartCalc AI",
+  "description": "Universal AI Calculator, Unit & Currency Converter, Financial & Engineering Tools, and Cooler Motor Manufacturing Suite.",
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -2,26 +2,22 @@
   "name": "smartcalc-ai",
   "version": "0.1.0",
   "private": true,
-  "main": "expo-router/entry",
+  "type": "module",
   "scripts": {
-    "start": "expo start",
-    "android": "expo run:android",
-    "web": "expo start --web",
-    "typecheck": "tsc --noEmit",
-    "doctor": "expo-doctor"
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "preview": "vite preview --port 3000",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "expo": "~57.0.24",
-    "expo-router": "~57.0.22",
-    "expo-constants": "~57.0.19",
-    "expo-linking": "~57.0.10",
     "react": "19.2.3",
-    "react-native": "0.86.3",
-    "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "~4.26.0"
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.3"
   }
 }
