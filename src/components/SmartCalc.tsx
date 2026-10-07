@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { getCurrencyRate } from '../utils/currency';
 
 type Tab = 'home' | 'tools' | 'chess' | 'chat' | 'history';
 type Tool = { id: string; title: string; icon: string; category: string; desc: string; converter?: boolean };
@@ -51,7 +52,7 @@ const tools: Tool[] = [
   T('profit', 'Profit & Loss', '↗', 'Finance', 'Profit/loss, margin and markup'),
   T('markup', 'Markup Calculator', '↗', 'Finance', 'Cost plus markup'),
   T('inflation', 'Inflation Calculator', '📈', 'Finance', 'Future price after inflation'),
-  T('currency', 'Currency Calculator', '¤', 'Finance', 'Currency conversion'),
+  T('currency', 'Currency Calculator', '¤', 'Finance', 'Currency conversion', true),
   T('bmi', 'BMI Calculator', '♥', 'Health & Fitness', 'BMI from weight and height'),
   T('bmr', 'BMR Calculator', '⚡', 'Health & Fitness', 'Mifflin-St Jeor BMR'),
   T('calorie', 'Calorie Calculator', '🔥', 'Health & Fitness', 'Daily calorie estimate'),
@@ -505,10 +506,12 @@ function ConverterModal({
   };
   const baseUnits = t.id === 'baseConverter' ? Array.from({ length: 35 }, (_, i) => String(i + 2)) : basePairs[t.id] || [];
   const list = def?.units || [];
+  const isCurrency = t.id === 'currencyConv' || t.id === 'currency';
   const [v, setV] = useState('1');
-  const [from, setFrom] = useState(t.id === 'currencyConv' ? 'INR' : t.id === 'temperatureConv' ? 'C' : baseUnits[0] || list[0] || '');
-  const [to, setTo] = useState(t.id === 'currencyConv' ? 'USD' : t.id === 'temperatureConv' ? 'F' : baseUnits[1] || list[1] || list[0] || '');
+  const [from, setFrom] = useState(isCurrency ? 'EUR' : t.id === 'temperatureConv' ? 'C' : baseUnits[0] || list[0] || '');
+  const [to, setTo] = useState(isCurrency ? 'USD' : t.id === 'temperatureConv' ? 'F' : baseUnits[1] || list[1] || list[0] || '');
   const [out, setOut] = useState('');
+  const [rateInfo, setRateInfo] = useState<{ isLive: boolean; isCached: boolean; source: string; rate: number } | null>(null);
   const [busy, setBusy] = useState(false);
 
   const units =
@@ -516,7 +519,7 @@ function ConverterModal({
       ? ['km/L', 'L/100km', 'mpg (US)']
       : t.id === 'radiationConv'
       ? ['Gy', 'rad', 'Sv', 'rem']
-      : t.id === 'currencyConv'
+      : isCurrency
       ? ['INR', 'USD', 'EUR', 'GBP', 'AED', 'SAR', 'JPY', 'CNY', 'CAD', 'AUD', 'CHF', 'SGD', 'HKD', 'NZD', 'ZAR', 'BRL', 'MXN', 'KRW', 'THB', 'MYR']
       : t.id === 'temperatureConv'
       ? ['C', 'F', 'K', 'R']
@@ -570,16 +573,15 @@ function ConverterModal({
         const x = num(v);
         const c = from === 'C' ? x : from === 'F' ? ((x - 32) * 5) / 9 : from === 'K' ? x - 273.15 : ((x - 491.67) * 5) / 9;
         r = fmt(to === 'C' ? c : to === 'F' ? (c * 9) / 5 + 32 : to === 'K' ? c + 273.15 : (c * 9) / 5 + 491.67);
-      } else if (t.id === 'currencyConv') {
-        if (from === to) r = fmt(num(v));
-        else {
+      } else if (isCurrency) {
+        if (from === to) {
+          r = fmt(num(v));
+          setRateInfo({ isLive: true, isCached: false, source: 'Exact Identity', rate: 1 });
+        } else {
           setBusy(true);
-          const resp = await fetch(`https://api.frankfurter.app/latest?amount=1&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
-          if (!resp.ok) throw 0;
-          const data = await resp.json();
-          const rate = Number(data?.rates?.[to]);
-          if (!Number.isFinite(rate)) throw 0;
-          r = fmt(num(v) * rate);
+          const res = await getCurrencyRate(from, to);
+          r = fmt(num(v) * res.rate);
+          setRateInfo({ isLive: res.isLive, isCached: res.isCached, source: res.source, rate: res.rate });
         }
       } else if (def) {
         r = fmt((num(v) * (def.factor[from] || 1)) / (def.factor[to] || 1));
@@ -593,7 +595,7 @@ function ConverterModal({
         save(t.title, v + ' ' + (labels[from] || from) + ' = ' + r + ' ' + (labels[to] || to));
       }
     } catch {
-      setOut(baseIds.includes(t.id) ? 'Invalid value for selected base' : t.id === 'currencyConv' ? 'Live currency rate unavailable right now' : 'Please check values and units.');
+      setOut(baseIds.includes(t.id) ? 'Invalid value for selected base' : 'Please check values and units.');
     } finally {
       setBusy(false);
     }
@@ -714,12 +716,54 @@ function ConverterModal({
             border: '1px solid #21828b',
           }}
         >
-          <div style={{ fontSize: 10, color: '#64ddd6', fontWeight: 900, letterSpacing: '1.4px' }}>
-            ⚡ LIVE RESULT
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 10, color: '#64ddd6', fontWeight: 900, letterSpacing: '1.4px' }}>
+              ⚡ LIVE RESULT
+            </div>
+            {isCurrency && rateInfo && (
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 800,
+                  padding: '2px 8px',
+                  borderRadius: 8,
+                  backgroundColor: rateInfo.isLive
+                    ? rateInfo.isCached
+                      ? '#0D3325'
+                      : '#064E3B'
+                    : rateInfo.isCached
+                    ? '#172554'
+                    : '#3B2F04',
+                  color: rateInfo.isLive
+                    ? rateInfo.isCached
+                      ? '#A7F3D0'
+                      : '#6EE7B7'
+                    : rateInfo.isCached
+                    ? '#93C5FD'
+                    : '#FDE047',
+                  border: `1px solid ${
+                    rateInfo.isLive ? '#10B981' : rateInfo.isCached ? '#3B82F6' : '#EAB308'
+                  }`,
+                }}
+              >
+                {rateInfo.isLive
+                  ? rateInfo.isCached
+                    ? '⚡ Live (Memory Cache)'
+                    : '✓ Live Market Rate'
+                  : rateInfo.isCached
+                  ? '💾 Local Cache (Offline)'
+                  : '🛡️ Calibrated Fallback Rate'}
+              </span>
+            )}
           </div>
           <div style={{ fontSize: 24, color: '#FFF', fontWeight: 900, marginTop: 4 }}>
             {out} {baseIds.includes(t.id) ? '' : labels[to] || to}
           </div>
+          {isCurrency && rateInfo && (
+            <div style={{ fontSize: 11, color: '#D8FFF9', marginTop: 6 }}>
+              1 {from} = {fmt(rateInfo.rate)} {to} • Source: {rateInfo.source}
+            </div>
+          )}
         </div>
       )}
 

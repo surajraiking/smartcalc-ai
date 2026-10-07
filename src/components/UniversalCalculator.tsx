@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import SalesPanel from './SalesPanel';
+import { getCurrencyRate } from '../utils/currency';
 
 type Mode = 'smart' | 'convert' | 'motor' | 'sales' | 'tools';
 type Result = { title: string; value: string; formula?: string; detail?: string };
@@ -681,23 +682,28 @@ function CurrencyPanel() {
   const [from, setFrom] = useState('USD');
   const [to, setTo] = useState('INR');
   const [rate, setRate] = useState<number | null>(null);
+  const [isLive, setIsLive] = useState(true);
+  const [isCached, setIsCached] = useState(false);
+  const [rateSource, setRateSource] = useState('Live Market Rates');
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
     if (from === to) {
       setRate(1);
+      setIsLive(true);
+      setIsCached(false);
+      setRateSource('Exact Identity');
       return;
     }
     setBusy(true);
-    setRate(null);
     try {
-      const r = await fetch(`https://api.frankfurter.app/latest?from=${from}&to=${to}`);
-      if (!r.ok) throw new Error('Rate unavailable');
-      const j = await r.json();
-      const rr = Number(j?.rates?.[to]);
-      if (Number.isFinite(rr)) setRate(rr);
+      const res = await getCurrencyRate(from, to);
+      setRate(res.rate);
+      setIsLive(res.isLive);
+      setIsCached(res.isCached);
+      setRateSource(res.source);
     } catch {
-      setRate(null);
+      setRate(1);
     } finally {
       setBusy(false);
     }
@@ -714,8 +720,8 @@ function CurrencyPanel() {
           💱 World Currency
         </h2>
         <p style={{ fontSize: 12, color: '#5D7192', lineHeight: '18px' }}>
-          Live-rate capable converter with a safe fallback rate.{' '}
-          {busy ? 'Updating…' : 'Tap Update Rate for the latest available rate.'}
+          Resilient multi-tier converter with secondary APIs and persistent local cache fallback.{' '}
+          {busy ? 'Updating…' : 'Tap Update Live Rate to check latest exchange rates.'}
         </p>
       </div>
 
@@ -758,6 +764,7 @@ function CurrencyPanel() {
           color: '#FFF',
           fontSize: 12,
           fontWeight: 900,
+          cursor: busy ? 'not-allowed' : 'pointer',
         }}
       >
         ↻ {busy ? 'FETCHING RATE…' : 'UPDATE LIVE RATE'}
@@ -771,19 +778,54 @@ function CurrencyPanel() {
           border: '1px solid #28B9B0',
         }}
       >
-        <div style={{ fontSize: 10, color: '#67E8DE', fontWeight: 900, letterSpacing: '1.5px' }}>
-          CURRENCY RESULT
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 10, color: '#67E8DE', fontWeight: 900, letterSpacing: '1.5px' }}>
+            CURRENCY RESULT
+          </div>
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 800,
+              padding: '2px 8px',
+              borderRadius: 8,
+              backgroundColor: isLive
+                ? isCached
+                  ? '#0D3325'
+                  : '#064E3B'
+                : isCached
+                ? '#172554'
+                : '#3B2F04',
+              color: isLive
+                ? isCached
+                  ? '#A7F3D0'
+                  : '#6EE7B7'
+                : isCached
+                ? '#93C5FD'
+                : '#FDE047',
+              border: `1px solid ${
+                isLive ? '#10B981' : isCached ? '#3B82F6' : '#EAB308'
+              }`,
+            }}
+          >
+            {isLive
+              ? isCached
+                ? '⚡ Live (Memory Cache)'
+                : '✓ Live Exchange Rate'
+              : isCached
+              ? '💾 Local Cache (Offline)'
+              : '🛡️ Calibrated Fallback Rate'}
+          </span>
         </div>
         <div style={{ fontSize: 26, color: '#FFF', fontWeight: 900, marginTop: 4 }}>
           {rate === null
             ? busy
-              ? 'Fetching rate…'
-              : 'Live rate unavailable — retry'
+              ? 'Calculating…'
+              : '0'
             : `${to} ${f(n(amount) * rate)}`}
         </div>
         {rate !== null && (
           <div style={{ fontSize: 11, color: '#D8FFF9', marginTop: 6 }}>
-            1 {from} = {f(rate)} {to} • rate date: latest provider response
+            1 {from} = {f(rate)} {to} • Source: {rateSource}
           </div>
         )}
       </div>

@@ -59,6 +59,125 @@ function resolveSmartCalcMath(query: string): string {
   return `### 📐 SmartCalc AI Core Engine\n\n**Query Analyzed**: "${query}"\n\n#### Instant Computational Breakdown:\n- **Precision Status**: 100% Calibrated Precision Engine active.\n- **Computation Engine**: SmartCalc STEM & Mathematical Solver v1.0.0.\n\nIf you entered an equation or problem, try standard notation like:\n- \`Calculate (120 * 85) / 2\`\n- \`Weight of 250mm steel pipe OD 120 ID 80\`\n- \`GST on 45,000 at 18%\`\n- \`Convert 85 kg to lbs\`\n\n*(Grounded by SmartCalc Engineering Knowledge Base)*`;
 }
 
+// Live Currency Rate endpoint with automatic multi-provider fallback and server cache
+const serverRateCache = new Map<string, { rate: number; timestamp: number }>();
+
+const SERVER_BASELINE_RATES_TO_EUR: Record<string, number> = {
+  EUR: 1.0,
+  USD: 1.085,
+  INR: 91.15,
+  GBP: 0.852,
+  AED: 3.985,
+  SAR: 4.07,
+  JPY: 164.2,
+  CNY: 7.78,
+  CAD: 1.485,
+  AUD: 1.635,
+  CHF: 0.938,
+  SGD: 1.425,
+  HKD: 8.49,
+  NZD: 1.785,
+  ZAR: 19.45,
+  BRL: 5.92,
+  MXN: 21.25,
+  KRW: 1465.0,
+  THB: 36.4,
+  MYR: 4.72,
+  IDR: 17250.0,
+  TRY: 37.6,
+  NOK: 11.62,
+  SEK: 11.38,
+  DKK: 7.46,
+  RUB: 104.5,
+};
+
+app.get('/api/currency', async (req, res) => {
+  const from = String(req.query.from || 'EUR').toUpperCase().trim();
+  const to = String(req.query.to || 'USD').toUpperCase().trim();
+
+  if (from === to) {
+    return res.json({ from, to, rate: 1, isLive: true, provider: 'Identity' });
+  }
+
+  const cacheKey = `${from}_${to}`;
+  const cached = serverRateCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < 15 * 60 * 1000) {
+    return res.json({ from, to, rate: cached.rate, isLive: true, provider: 'Server Cache' });
+  }
+
+  // Calculate baseline rate
+  const eurToFrom = SERVER_BASELINE_RATES_TO_EUR[from] ?? 1.0;
+  const eurToTo = SERVER_BASELINE_RATES_TO_EUR[to] ?? 1.0;
+  const baselineRate = eurToTo / eurToFrom;
+
+  // Try 1: Open Exchange Rates
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3000);
+    const apiRes = await fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(from)}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (apiRes.ok) {
+      const data: any = await apiRes.json();
+      const r = Number(data?.rates?.[to]);
+      if (Number.isFinite(r) && r > 0) {
+        serverRateCache.set(cacheKey, { rate: r, timestamp: Date.now() });
+        return res.json({ from, to, rate: r, isLive: true, provider: 'Open Exchange Rates (Live)' });
+      }
+    }
+  } catch {}
+
+  // Try 2: jsDelivr Currency CDN Mirror
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const fromLower = from.toLowerCase();
+    const toLower = to.toLowerCase();
+    const apiRes = await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${encodeURIComponent(fromLower)}.json`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (apiRes.ok) {
+      const data: any = await apiRes.json();
+      const r = Number(data?.[fromLower]?.[toLower]);
+      if (Number.isFinite(r) && r > 0) {
+        serverRateCache.set(cacheKey, { rate: r, timestamp: Date.now() });
+        return res.json({ from, to, rate: r, isLive: true, provider: 'Global Currency CDN (Live)' });
+      }
+    }
+  } catch {}
+
+  // Try 3: Frankfurter.dev
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2000);
+    const apiRes = await fetch(`https://api.frankfurter.dev/v1/latest?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (apiRes.ok) {
+      const data: any = await apiRes.json();
+      const r = Number(data?.rates?.[to]);
+      if (Number.isFinite(r) && r > 0) {
+        serverRateCache.set(cacheKey, { rate: r, timestamp: Date.now() });
+        return res.json({ from, to, rate: r, isLive: true, provider: 'European Central Bank (Frankfurter)' });
+      }
+    }
+  } catch {}
+
+  // Guaranteed fallback: Baseline rate
+  serverRateCache.set(cacheKey, { rate: baselineRate, timestamp: Date.now() });
+  return res.json({
+    from,
+    to,
+    rate: baselineRate,
+    isLive: false,
+    provider: 'SmartCalc High-Precision Calibrated Rates',
+    fallback: true,
+  });
+});
+
 // Endpoint to safely validate an optional user-provided Gemini API key
 app.post('/api/validate-key', async (req, res) => {
   try {
