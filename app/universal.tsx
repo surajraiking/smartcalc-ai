@@ -64,11 +64,11 @@ function convert(value:string,from:string,to:string):Result|null{
 function MotorPanel(){
   const [qty,setQty]=useState('500'),[kg,setKg]=useState('3.3'),[perBox,setPerBox]=useState('4'),[reject,setReject]=useState('2'),[cost,setCost]=useState('250'),[density,setDensity]=useState('7850');
   const q=n(qty),w=n(kg),b=Math.max(1,n(perBox)),r=n(reject),c=n(cost),good=q*(1-r/100);
-  const material=q*w, boxes=Math.ceil(q/b), goodMaterial=good*w, total=c*q;
+  const material=q*w, boxes=Math.ceil(q/b), goodMaterial=good*w, total=c*q, materialVolume=n(density)>0?material/n(density):0;
   return <View><Text style={S.section}>⚙️ Cooler Motor Manufacturing</Text><Text style={S.muted}>Production, material, packing, rejection and costing in one live panel.</Text>
     <View style={S.formGrid}>{[['Motor Quantity',qty,setQty],['Weight / Motor (kg)',kg,setKg],['Motors / Box',perBox,setPerBox],['Rejection %',reject,setReject],['Cost / Motor ₹',cost,setCost],['Density kg/m³',density,setDensity]].map((x:any)=><View style={S.fieldWrap} key={x[0]}><Text style={S.label}>{x[0]}</Text><TextInput value={x[1]} onChangeText={x[2]} keyboardType="decimal-pad" style={S.field}/></View>)}</View>
-    <View style={S.metricGrid}>{[['Raw material',f(material)+' kg'],['Good motors',f(good)],['Rejected',f(q-good)],['Boxes',f(boxes)],['Good material',f(goodMaterial)+' kg'],['Production value','₹'+f(total)]].map(x=><View style={S.metric} key={x[0]}><Text style={S.metricLabel}>{x[0]}</Text><Text style={S.metricValue}>{x[1]}</Text></View>)}</View>
-    <Text style={S.example}>Examples: 500 × 3.3 kg = 1,650 kg • 500 ÷ 4 = 125 boxes • 2% rejection = 10 rejected / 490 good</Text>
+    <View style={S.metricGrid}>{[['Raw material',f(material)+' kg'],['Good motors',f(good)],['Rejected',f(q-good)],['Boxes',f(boxes)],['Good material',f(goodMaterial)+' kg'],['Material volume',f(materialVolume)+' m³'],['Production value','₹'+f(total)]].map(x=><View style={S.metric} key={x[0]}><Text style={S.metricLabel}>{x[0]}</Text><Text style={S.metricValue}>{x[1]}</Text></View>)}</View>
+    <Text style={S.section}>⚡ Tap an example to calculate</Text><View style={S.quickGrid}>{[['500 motors · 3.3 kg · 4/box · 2% reject',()=>{setQty('500');setKg('3.3');setPerBox('4');setReject('2')}],['1000 motors · 2.8 kg · 5/box · 1% reject',()=>{setQty('1000');setKg('2.8');setPerBox('5');setReject('1')}]].map(([label,fn]:any)=><Pressable key={label} onPress={fn} style={S.quick}><Text style={S.quickText}>{label}</Text></Pressable>)}</View><Text style={S.example}>Volume = total material weight ÷ density. Confirm the actual material density for your alloy before production use.</Text>
   </View>
 }
 function SmartPanel(){
@@ -97,7 +97,7 @@ function CurrencyPanel(){
  <View style={S.row}><TextInput value={amount} onChangeText={setAmount} keyboardType="decimal-pad" style={[S.field,{flex:1}]}/><Dropdown label="FROM" value={from} options={CURRENCIES} onChange={setFrom}/><Dropdown label="TO" value={to} options={CURRENCIES} onChange={setTo}/></View>
  <Pressable onPress={load} style={S.primary}><Text style={S.primaryText}>↻ UPDATE LIVE RATE</Text></Pressable>
  <View style={S.answer}><Text style={S.answerKicker}>CURRENCY RESULT</Text><Text style={S.answerValue}>{rate===null?(busy?'Fetching rate…':'Live rate unavailable — retry'):(to+' '+f(n(amount)*rate))}</Text>{rate!==null&&<Text style={S.formula}>1 {from} = {f(rate)} {to} • rate date: latest provider response</Text>}</View>
- <Text style={S.examples}>Supported quick list: {CURRENCIES.join(' • ')}</Text>
+ <Text style={S.section}>⚡ Quick examples</Text><View style={S.quickGrid}>{[['100 USD → INR','100','USD','INR'],['2500 INR → USD','2500','INR','USD'],['50 EUR → GBP','50','EUR','GBP']].map(([label,a,fr,t])=><Pressable key={label} onPress={()=>{setAmount(a);setFrom(fr);setTo(t)}} style={S.quick}><Text style={S.quickText}>{label}</Text></Pressable>)}</View><Text style={S.examples}>Currency codes: {CURRENCIES.join(' • ')}. Rates depend on the latest provider data and can be unavailable for some currencies.</Text>
  </View>
 }
 export default function UniversalHome(){
